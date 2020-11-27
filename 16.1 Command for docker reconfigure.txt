@@ -1,0 +1,4 @@
+eval $(minikube docker-env)
+
+
+for just a single terminal window

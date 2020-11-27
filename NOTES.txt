@@ -1,0 +1,176 @@
+19th video is main one 
+
+						WE MUST USE GIT BASH
+						WE MUST USE GIT BASH
+						WE MUST USE GIT BASH
+						WE MUST USE GIT BASH
+						WE MUST USE GIT BASH
+
+----------------------------------------------------Main Idea----------------------------------------------------------------
+we will have 2 keys
+public key will be associated to github on my account .. 
+and private key will be saved in my laptop in .ssh file which will be hidden .. 
+public key will send me encrypted data and my private key will decrypt it .. totally secure ..
+so i will not have to give it a password whenever i have to git push add .
+bcoz i will have private key saved in laptop
+
+----------------------------------------------Probems Solutions--------------------------------------------------------------
+Enable the OpenSSH Server in Windows 10
+Open the Settings app and go to Apps -> Apps & features.
+On the right, click Manage optional features.
+On the next page, click the button Add a feature.
+In the list of features, select OpenSSH Server and click on the Install button.
+Restart Windows 10.
+
+How do I find my SSH public key Windows 10? if we dont have ssh file , it will be created
+open command prompt (cmd)
+enter ssh-keygen and press enter.
+press enter to all settings. now your key is saved in c:\Users\. ssh\id_rsa. pub.
+Open your git client and set it to use open SSH.
+
+https://www.google.com/search?q=how+to+access+.ssh+file+in+windows+10&rlz=1C1CHBD_enPK921PK921&oq=how+to+access+.ssh+file+in+windows+10&aqs=chrome.0.69i59.1184j0j7&sourceid=chrome&ie=UTF-8
+
+-----------------------------------------------------Environment------------------------------------------------------------------
+
+open powershell as an administrator , (but try to use git bash)
+git bash is working better .. 
+in git bash , in desktop/zohaib , i can search  -- cd ~/.ssh 
+in powershell,  we will have to do -- cd ~\.ssh
+
+----------------------------------------SSH FILE EXISTENCE----------------------------------------------------------------------
+
+ssh file exists on Users/zohaib and i need to do cd ~/.ssh
+
+-------------------------------------Start The Work--------------------------------------------------------------
+
+from desktop/zohaib, with cd ~/.ssh in git bash and with cd ~\.ssh in powershell .. we will move to .ssh file
+here we have our all generated ssh keys .. and we can see all using (ls) command 
+
+ssh-keygen -t rsa -b 4096 -C "zohaibbutt045@gmail.com" -- key generate for github 
+and then we will be asked for the name with some given path .. 
+we can copy the already given path and add some name after that
+and we will paste it there but naming must be in this syntax
+
+then we will have 2 keys generated as id_rsa_[Name] and id_rsa_[Name].pub  
+
+clip < ~/.ssh/id_rsa_gitkey.pub -- copy the public key .. 
+then go to the github settings > ssh > add new ssh key and then paste the key which we copied from clip command 
+
+
+=============ssh-add==============
+
+check ssh-add -l -- get list of identities (private keys associated to our machine) we r having  
+[{(we may face an error here .. neeche error resolved ha , go there and resolve the issue first )}] and 
+if it doesnot work .. do this command .. eval `ssh-agent -s`   -- eval command only works in git bash
+then ssh-add -D -- to remove all the previous identities .. 
+then ssh-add ~/.ssh/id_rsa_[Name] -- (its private key .. not .pub key ) (do it in bash) only
+we may get an error like -- Could not open a connection to your authentication agent.
+then i will need to do -- eval `ssh-agent -s` // in git bash only
+
+
+now i can git clone any of my repo ..
+
+Now my public key is associated to github .. 
+and private key is saved in my laptop .. 
+public key will send me data and my private key will decrypt it .. totally secure ..
+so i will not have to give it a password whenever i have to git push add .
+bcoz i have now private key saved
+
+when we have cloned some repo 
+our public key in github settings will become green .. 
+its indicator that ssh keys are working 
+
+----------------------------------------------------------------ERRORS WE MAY FACE-----------------------------------------------------
+
+DO EVERYTHING IN GIT BASH 1ST
+IF I GET ERROR LIKE Permission denied (publickey). fatal: Could not read from remote repository.
+we need to check ssh-add -l , if have no key there (in git bash)
+we will have to restart the steps of ssh-add
+
+
+IF I GET THIS ERROR 
+The authenticity of host 'github.com (140.82.113.4)' can't be established.
+i need to do -- ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+
+Error in ssh-add ..
+We may have a problem with git-add command then we will have to deal with ssh-agent and if command ssh-agent doesnot work
+here is the solution
+-------------------------------------------------------------------------------------------------------------------------------
+1) Get-Service ssh-agent
+its output will be 
+Status   Name               DisplayName
+------   ----               -----------
+Stopped  ssh-agent          OpenSSH Authentication Agent
+
+2) Get-Service ssh-agent | Select StartType
+its output will be
+StartType
+---------
+Disabled
+
+3) Get-Service -Name ssh-agent | Set-Service -StartupType Manual  (do this 2 times )
+so it will be done ..
+
+Restart the shell and do ssh-agent once s
+
+link of the stack overflow question 
+https://stackoverflow.com/questions/52113738/starting-ssh-agent-on-windows-10-fails-unable-to-start-ssh-agent-service-erro
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+--------------------------------SSH-AGENT PROBLEMS--------------------------------------
+i can use ssh and ssh-agent commands from powershell
+-- and if i dont find ~/.ssh/id_rsa 
+i could do in powershell as , cd /.ssh from root folder
+and then ssh-add id_rsa_key
+
+Update 2019 - A better solution if you're using Windows 10: OpenSSH is available as part of Windows 10 which makes using SSH from cmd/powershell much easier in my opinion. It also doesn't rely on having git installed, unlike my previous solution.
+
+Open Manage optional features from the start menu and make sure you have Open SSH Client in the list. If not, you should be able to add it.
+
+MAIN - Open Services from the start Menu
+
+MAIN - Scroll down to OpenSSH Authentication Agent > right click > properties
+
+MAIN - Change the Startup type from Disabled to any of the other 3 options. I have mine set to Automatic (Delayed Start)
+
+MAIN - Open cmd and type where ssh to confirm that the top listed path is in System32. Mine is installed at C:\Windows\System32\OpenSSH\ssh.exe. If it's not in the list you may need to close and reopen cmd.
+
+MAIN - Once you've followed these steps, ssh-agent, ssh-add and all other ssh commands should now work from cmd. To start the agent you can simply type ssh-agent.
+
+
+--------------------------------------------------------------------------------------------------------
+
+create .bashrc file in c/user/zohaib 
+and add text in that 
+------------------------------------------------
+# Set up ssh-agent
+SSH_ENV="$HOME/.ssh/environment"
+
+function start_agent {
+    echo "Initializing new SSH agent..."
+    touch $SSH_ENV
+    chmod 600 "${SSH_ENV}"
+    /usr/bin/ssh-agent | sed 's/^echo/#echo/' >> "${SSH_ENV}"
+    . "${SSH_ENV}" > /dev/null
+    /usr/bin/ssh-add
+}
+
+# Source SSH settings, if applicable
+if [ -f "${SSH_ENV}" ]; then
+    . "${SSH_ENV}" > /dev/null
+    kill -0 $SSH_AGENT_PID 2>/dev/null || {
+        start_agent
+    }
+else
+    start_agent
+fi
+--------------------------------------------------
+in GitBash
+then do  source ~/.bashrc
+
+
+
+
