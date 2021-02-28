@@ -1,0 +1,3 @@
+bcdedit /set hypervisorlaunchtype off -- run this script in powershell for running ubuntu
+bcdedit /set hypervisorlaunchtype auto -- run this script in powershell for running docker
+restart recommended 
