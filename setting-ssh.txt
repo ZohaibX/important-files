@@ -169,7 +169,8 @@ else
 fi
 --------------------------------------------------
 in GitBash
-then do  source ~/.bashrc
+do -- notepad ~/.bashrc -- and then paste the upper text 
+then do -- source ~/.bashrc
 
 
 
